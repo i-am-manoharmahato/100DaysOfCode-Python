@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ##========================================================================================##
-## Day9: Python Dictionary: This script is to test out a secret auction game, where
+## Day12: Python Dictionary: This script is to test out a secret auction game, where
 ## users can enter their name and a bid amount and the highest bidder is selected at the
 ## end. 
 ## I have tried to use Python dictionary and list as value for dictionary-key.
