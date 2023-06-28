@@ -1,6 +1,5 @@
 from turtle import Turtle
 
-SPEED = 2
 
 
 class Ball(Turtle):
