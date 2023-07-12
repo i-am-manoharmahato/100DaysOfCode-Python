@@ -1,9 +1,10 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
 
-FILE_DELIMITER = "|"
+FILE_DELIMITER = " | "
 
 
 def generate_password():
@@ -34,21 +35,53 @@ def add_password():
     if field_result == 0:
         messagebox.showerror(message=f"Please don't leave any fields empty!\n")
     else:
-        is_ok = messagebox.askokcancel(
-            message=f"These are the details entered: \nEmail: {input_uname.get()}\nPassword: {input_pwd.get()}\n\nAre the details okay to save?\n")
-        if is_ok:
-            write_to_pwdfile(user_details)
+        current_data = {
+            input_website.get(): {
+                "email": input_uname.get(),
+                "password": input_pwd.get()
+            }
+        }
+        write_to_pwdfile(current_data)
+
+
+def search():
+    website = input_website.get()
+    if len(website) > 0:
+        try:
+            with open("passfile.json", "r") as logfile:
+                data = json.load(logfile)
+                try:
+                    email = data[website]["email"]
+                    password = data[website]["password"]
+                    messagebox.showinfo(message=f"{website}\nEmail: {email}\nPassword: {password}\n")
+
+                except KeyError:
+                    messagebox.showerror(message=f"Credentials do not exist for {website}. Try another search..\n")
+                finally:
+                    clear_field(input_website)
+        except FileNotFoundError:
+            messagebox.showerror(message=f"Password file does not exist. Start storing passwords\n")
             clear_field(input_website)
-            clear_field(input_pwd)
+
+    else:
+        messagebox.showerror(message=f"Please enter a website to search for..\n")
 
 
-def write_to_pwdfile(details):
-    with open("passfile.txt", 'a') as logfile:
-        for item in details[:-1]:
-            logfile.write(item)
-            logfile.write(FILE_DELIMITER)
-        logfile.write(details[-1])
-        logfile.write('\n')
+def write_to_pwdfile(new_data):
+    try:
+        with open("passfile.json", 'r') as logfile:
+            # json.dump(new_data, logfile, indent=4)
+            data = json.load(logfile)
+    except FileNotFoundError:
+        with open("passfile.json", "w") as logfile:
+            json.dump(new_data, logfile, indent=4)
+    else:
+        data.update(new_data)
+        with open("passfile.json", "w") as logfile:
+            json.dump(data, logfile, indent=4)
+    finally:
+        clear_field(input_website)
+        clear_field(input_pwd)
 
 
 def clear_field(field):
@@ -90,6 +123,8 @@ input_pwd = Entry(width=20)
 input_pwd.grid(column=1, row=3)
 
 # Button
+btn_search = Button(text="Search", width=11, command=search)
+btn_search.grid(column=2, row=1)
 btn_gen_pass = Button(text="Generate Password", width=11, command=generate_password)
 btn_gen_pass.grid(column=2, row=3)
 btn_add = Button(text="Add", width=34, command=add_password)
